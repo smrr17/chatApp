@@ -14,6 +14,10 @@ import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import NavService from '../components/NavService';
 import {connect} from 'react-redux';
+import {
+  GoogleSignin,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
 
 //import {auth} from '../screens/Firebase';
 
@@ -38,18 +42,60 @@ class Signin extends Component {
         .collection('user')
         .doc(user.user.uid)
         .get();
-      console.log('sss', userData.data());
+      // console.log('sss', userData.data());
       this.props.Login(userData.data());
       NavService.reset(0, [{name: 'AppStack'}]);
+      this.setState({email: '', password: '', isLoading: false});
     } catch (e) {
       alert(e.message);
     } finally {
-      this.setState({email: '', password: '', isLoading: false});
+   
     }
   };
+ onGoogleButtonPress =async()=> {
+    // Check if your device supports Google Play
+    await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+    // Get the users ID token
+    const { idToken } = await GoogleSignin.signIn();
+  
+    // Create a Google credential with the token
+    const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+  
+    // Sign-in the user with the credential
+    return auth().signInWithCredential(googleCredential);
+  }
+
+  googleLogin = async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      console.log('user info', userInfo);
+
+      // const googleCredential = auth.GoogleAuthProvider.credential(
+      //   userInfo.idToken,
+      // );
+      const user = await auth().signInWithCredential(googleCredential);
+      console.log('user', user);
+      // let userData = await firestore()
+      //   .collection('user')
+      //   .doc(user.user.uid)
+      //   .get();
+      // // console.log('sss', userData.data());
+      // this.props.Login(userData.data());
+      // NavService.reset(0, [{name: 'AppStack'}]);
+    } catch (error) {
+      console.log('error', error);
+    }
+ 
+  }
+  componentDidMount() {
+    GoogleSignin.configure();
+  }
+  
   render() {
     const {width, height} = Dimensions.get('screen');
     const {email, password} = this.state;
+   
     return (
       <View
         style={{
@@ -164,6 +210,38 @@ class Signin extends Component {
               Sign Up
             </Link>
           </View>
+          <TouchableOpacity onPress={this.googleLogin}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              alignSelf: 'center',
+            }}>
+            <View
+              style={{
+                borderColor: 'blue',
+                borderWidth: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: 40,
+                padding: 10,
+              }}>
+              <Image
+                style={{width: 20, height: 20}}
+                source={require('../assets/google.png')}
+              />
+            </View>
+            <View
+              style={{
+                backgroundColor: 'blue',
+                height: 40,
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 10,
+              }}>
+              <Text style={{color: 'white'}}>Sign in with Google</Text>
+            </View>
+          </TouchableOpacity>
         </View>
       </View>
     );

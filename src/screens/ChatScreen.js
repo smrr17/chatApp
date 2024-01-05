@@ -69,6 +69,7 @@ class ChatScreen extends React.Component {
     count: 0,
     videoCall: false,
     vvisible: false,
+    loading:false,
     // participants: [this.props.route.params.item.uid, this.props.user.uid],
   };
   sendPicture = async () => {
@@ -138,7 +139,6 @@ class ChatScreen extends React.Component {
   }
 
   mockItem = ({item, index}) => {
-    //   console.log('saad', item);
     const sentByMe = item.sentBy === this.props.user.uid;
     return (
       <View
@@ -189,7 +189,10 @@ class ChatScreen extends React.Component {
 
   message = async () => {
     const {message, messages, count} = this.state;
-    this.setState({isLoader: true});
+
+    this.setState({isLoader: true,loading:true});
+
+
     if (this.state.sendImage.length) {
       const url = await this.uploadPicture();
       this.setState({url: url});
@@ -199,8 +202,6 @@ class ChatScreen extends React.Component {
     const otherUserUid = item.participants.filter(part => part !== myUid)[0];
     const myself = item?.users[myUid];
     const otherUser = item?.users[otherUserUid];
-    console.log('dsfdf', otherUser);
-    console.log(myself);
     messages.push(message);
     this.setState({count: messages.length});
 
@@ -224,32 +225,34 @@ class ChatScreen extends React.Component {
               users: {
                 [otherUserUid]: {
                   ...otherUser,
-                  count: this.state.count,
+                  // count: this.state.count,
                 },
                 [myUid]: {...myself},
               },
             })
             .then(() => {
-              alert('success');
+              // alert('success');
             });
         })
         .catch(e => {
           console.log(e.message);
-        });
+        }).finally(()=>{
+          this.setState({loading:false,isLoader:false})
+        })
     } else {
       alert('Please enter your message');
     }
-    this.setState({message: '', isVisible: false, isLoader: false});
+    this.setState({message: '', isVisible: false,});
   };
 
   componentWillUnmount() {
-    this.countUpdate();
+    // this.countUpdate();
   }
 
   countUpdate = () => {
-    const {item} = this.props.route.params;
+    const {item} = this?.props?.route?.params;
     const myUid = this.props.user.uid;
-    const otherUserUid = item.participants.filter(part => part !== myUid)[0];
+    const otherUserUid = item?.participants?.filter(part => part !== myUid)[0];
     const myself = item?.users[myUid];
     const otherUser = item?.users[otherUserUid];
     console.log('====================================');
@@ -268,13 +271,12 @@ class ChatScreen extends React.Component {
         },
       })
       .then(() => {
-        alert('success');
+        // alert('success');
       });
   };
 
   render() {
     const {width, height} = Dimensions.get('screen');
-    console.log('state', this.state.vvisible);
     const data = this.props.route.params.item;
     const participants = this.props.route.params.item?.participants;
     const otherID = participants?.filter(
@@ -284,7 +286,6 @@ class ChatScreen extends React.Component {
     const myUid = this.props.user.uid;
     const {item} = this.props.route.params;
     const myself = data?.users[myUid];
-    console.log(this.state.vvisible);
     return (
       <SafeAreaView style={{flex: 1, backgroundColor: 'white', paddingTop: 20}}>
         <Modal visible={this.state.vvisible}>

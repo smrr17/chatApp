@@ -109,10 +109,16 @@ export class Newchat extends Component {
       });
     this.setState({isFocusedd: false});
   };
+
+
+
+
   componentDidMount() {
     this.getAllUser();
     this.getAllChats();
   }
+
+
   getAllChats = () => {
     firestore()
       .collection('chatRooms')
@@ -128,15 +134,14 @@ export class Newchat extends Component {
         this.setState({chats: newChat});
       });
   };
+
+
   storeInFirestore = item => {
-    console.log('itemss', item);
     const {uid, imageUrl, username} = this.props?.user;
-    console.log('user', this.props?.user);
     const id1 = this.props.user?.uid;
     const id2 = item?.uid;
     firestore()
       .collection('chatRooms')
-      //.doc()
       .add({
         participants: [this.props.user?.uid, item?.uid],
         users: {
@@ -152,7 +157,6 @@ export class Newchat extends Component {
       })
       .then(res => {
         console.log('fire', this.foo);
-        // this.setState({id: res.data()});
         this.props.navigation.navigate('chat', {
           item: {
             documentID: res.id,
@@ -178,6 +182,7 @@ export class Newchat extends Component {
   };
 
   render() {
+
     const {height} = Dimensions.get('screen');
     const {chats, userData, search} = this.state;
     const myUid = this.props.user.uid;
@@ -185,15 +190,12 @@ export class Newchat extends Component {
       const otherUser = data?.participants?.filter(part => part !== myUid)[0];
       return otherUser;
     });
+    
 
     const newData = userData.filter(item => {
-      //   console.log(item);
-      //  console.log('includes', other.includes(item.uid));
       if (!other.includes(item.uid)) return item;
     });
-
     console.log(newData);
-
     const finalData = newData?.filter(item => {
       return (
         item?.username?.toLowerCase().includes(search.toLowerCase()) &&

@@ -8,11 +8,10 @@ export default function (state = INITIAL_STATES, action) {
         ...state,
         user: action.payload,
       };
-    case 'SAVE_USER1':
+    case 'LOGOUT':
       return {
         ...INITIAL_STATES,
       };
-
     default:
       return state;
   }

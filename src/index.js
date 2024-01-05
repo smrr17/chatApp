@@ -116,7 +116,6 @@ class Navigation extends Component {
   }
 }
 function mapStateToProps({reducer: {user}}) {
-  console.log('asaad', user);
   return {
     user,
   };

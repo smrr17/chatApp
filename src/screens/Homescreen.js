@@ -9,6 +9,7 @@ import {
   Dimensions,
   LayoutAnimation,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
 import React, {Component, useEffect, useState} from 'react';
 import {connect} from 'react-redux';
@@ -22,22 +23,25 @@ const data = [
 ];
 
 class Homescreen extends Component {
-  state = {
-    isVisbile: false,
-    isFocused: false,
-    data: data,
-    search: '',
-    chats: [],
-    isBlur: true,
-  };
+  constructor(props) {
+    super(props);
+    const {user} = this.props;
+    this.state = {
+      isVisbile: false,
+      isFocused: false,
+      data: data,
+      search: '',
+      chats: [],
+      isBlur: true,
+      isModel: this.props?.user?.isFirstTime ? true : false,
+    };
+  }
   listItem = ({item, index}) => {
-    console.log('item', item);
     const myUid = this.props.user.uid;
     const otherUserUid = item.participants.filter(part => part !== myUid)[0];
     const otherUser = item?.users[otherUserUid];
     const myself = item?.users[myUid];
-    console.log('other', otherUser.count);
-    console.log(myself);
+
     return (
       <TouchableOpacity
         onPress={() => this.props.navigation.navigate('chat', {item})}
@@ -52,16 +56,16 @@ class Homescreen extends Component {
             flexDirection: 'row',
             alignItems: 'center',
           }}>
-          <Image
+          {/* <Image
             style={{
               backgroundColor: '#C0C0C0',
               width: 35,
               height: 35,
               borderRadius: 25,
             }}
-            source={{uri: otherUser.imageUrl}}
-          />
-          <Text style={{marginLeft: 15}}>{otherUser.name}</Text>
+            source={{uri: otherUser?.imageUrl}}
+          /> */}
+          <Text style={{marginLeft: 15}}>{otherUser?.name}</Text>
           {myself.count > 0 ? (
             <View
               style={{
@@ -81,6 +85,9 @@ class Homescreen extends Component {
     );
   };
   componentDidMount() {
+    
+    const {user} = this.props;
+    console.log(user, 'user');
     this.focus = this.props.navigation.addListener('focus', async () => {
       setTimeout(() => {
         this.getAllUser();
@@ -98,7 +105,7 @@ class Homescreen extends Component {
       .then(res => {
         let newData = [];
         res.forEach(item => {
-          console.log('res', item.data());
+          // console.log('res', item.data());
           newData.push(item.data());
         });
         this.setState({userData: newData});
@@ -107,7 +114,7 @@ class Homescreen extends Component {
     this.setState({isFocusedd: false});
   };
   getAllChats = () => {
-    const {uid, username, imageUrl} = this.props.user;
+    const {uid, username,} = this.props.user;
     firestore()
       .collection('chatRooms')
       .where('participants', 'array-contains', this.props.user.uid)
@@ -178,19 +185,68 @@ class Homescreen extends Component {
   };
 
   render() {
-    const {imageUrl, username} = this.props?.user;
-    // console.log('firestore', imageUrl);
+    const { username,isFirstTime} = this.props?.user;
     const {isFocused, isVisbile, data, search, chats} = this.state;
-    //  console.log('route', this.props.route.params?.item.imageUrl);
     const {navigation, route} = this.props;
-    console.log('state', chats);
-    chats.map(data => {
-      console.log('lkolo', data.documentID);
-    });
+    console.log('state', this.state.isModel,isFirstTime);
+
     const {width, height} = Dimensions.get('screen');
 
     return (
       <View style={{flex: 1, backgroundColor: 'white'}}>
+        <Modal transparent visible={this.state.isModel}>
+          <View
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: '#00000080',
+            }}>
+            <View
+              style={{
+                height: 200,
+                width: 200,
+                backgroundColor: 'white',
+                borderRadius: 10,
+                overflow: 'hidden',
+              }}>
+              <TouchableOpacity
+                onPress={() => {
+                  firestore()
+                    .collection('user')
+                    .doc(this.props.user.uid)
+                    .update({isFirstTime: false}).then(( res)=>{
+                      console.log('updated res',res)
+                      this.setState({isModel:false})
+                      this.props?.Login({...this.props.user,isFirstTime:false})
+                    }).catch((e)=>{
+                      alert(e.message)
+                    }
+                    )
+
+                }}
+                style={{alignSelf: 'flex-end', marginRight: 5}}>
+                <Text style={{fontSize: 25, fontWeight: 'bold'}}>x</Text>
+              </TouchableOpacity>
+              <View
+                style={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  flex: 1,
+                  padding: 10,
+                }}>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    fontWeight: 'bold',
+                    textAlign: 'center',
+                  }}>
+                  Welcome to Chat App Mr {username}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </Modal>
         <View
           style={{
             flex: 2,
@@ -226,17 +282,12 @@ class Homescreen extends Component {
                   onPress={() => {
                     navigation.navigate('profile');
                   }}>
-                  {imageUrl?.length ? (
-                    <Image
-                      style={{width: 30, height: 30, borderRadius: 30}}
-                      source={{uri: imageUrl}}
-                    />
-                  ) : (
+            
                     <Text
                       style={{color: 'white', fontSize: 18, fontWeight: '800'}}>
                       {username[0]}
                     </Text>
-                  )}
+              
                 </TouchableOpacity>
               </View>
             </View>
@@ -346,10 +397,19 @@ class Homescreen extends Component {
   }
 }
 function mapStateToProps({reducer: {user}}) {
-  console.log('asdxxyx', user);
   return {
     user,
   };
 }
+const mapDispatchToProps = dispatch => {
+  return {
+    Login: data => {
+      dispatch({type: 'SAVE_USER', payload: data});
+    },
+    Logout: () => {
+      dispatch({type: 'LOGOUT'});
+    },
+  };
+};
 
-export default connect(mapStateToProps)(Homescreen);
+export default connect(mapStateToProps,mapDispatchToProps)(Homescreen);

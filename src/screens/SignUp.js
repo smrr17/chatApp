@@ -41,9 +41,9 @@ export class SignUp extends Component {
         firestore()
           .collection('user')
           .doc(user.user.uid)
-          .set({email, username, uid: user.user.uid, password})
+          .set({email, username, uid: user.user.uid, password,age:"",gender:"",isFirstTime:true})
           .then(() => {
-            this.props.Login({email, username, uid: user.user.uid, password});
+            this.props.Login({email, username, uid: user.user.uid, password,age:"",gender:"",isFirstTime:true});
             NavService.reset(0, [{name: 'AppStack'}]);
           })
           .catch(e => {
@@ -93,7 +93,6 @@ export class SignUp extends Component {
         <View
           style={{
             flex: 3,
-
             // justifyContent: 'center',
             // alignItems: 'center',
           }}>
@@ -107,7 +106,6 @@ export class SignUp extends Component {
             flex: 7,
             paddingHorizontal: 20,
             backgroundColor: 'white',
-            //   overflow: 'hidden',
             borderTopLeftRadius: 35,
           }}>
           <ScrollView showsVerticalScrollIndicator={false}>
