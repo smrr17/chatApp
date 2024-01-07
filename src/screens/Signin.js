@@ -45,37 +45,39 @@ class Signin extends Component {
       // console.log('sss', userData.data());
       this.props.Login(userData.data());
       NavService.reset(0, [{name: 'AppStack'}]);
-      this.setState({email: '', password: '', isLoading: false});
+      this.setState({email: '', password: ''});
     } catch (e) {
       alert(e.message);
     } finally {
-   
+      this.setState({isLoading: false});
     }
   };
- onGoogleButtonPress =async()=> {
+  onGoogleButtonPress = async () => {
     // Check if your device supports Google Play
-    await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+    await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
     // Get the users ID token
-    const { idToken } = await GoogleSignin.signIn();
-  
+    const {idToken} = await GoogleSignin.signIn();
+
     // Create a Google credential with the token
+
     const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-  
+
     // Sign-in the user with the credential
     return auth().signInWithCredential(googleCredential);
-  }
+  };
 
   googleLogin = async () => {
     try {
-      await GoogleSignin.hasPlayServices();
-      const userInfo = await GoogleSignin.signIn();
-      console.log('user info', userInfo);
+      await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
+
+      const {idToken} = await GoogleSignin.signIn();
+      console.log('user info', idToken);
 
       // const googleCredential = auth.GoogleAuthProvider.credential(
       //   userInfo.idToken,
       // );
-      const user = await auth().signInWithCredential(googleCredential);
-      console.log('user', user);
+      // const user = await auth().signInWithCredential(googleCredential);
+      // console.log('user', user);
       // let userData = await firestore()
       //   .collection('user')
       //   .doc(user.user.uid)
@@ -86,16 +88,15 @@ class Signin extends Component {
     } catch (error) {
       console.log('error', error);
     }
- 
-  }
+  };
   componentDidMount() {
     GoogleSignin.configure();
   }
-  
+
   render() {
     const {width, height} = Dimensions.get('screen');
     const {email, password} = this.state;
-   
+
     return (
       <View
         style={{
@@ -210,7 +211,8 @@ class Signin extends Component {
               Sign Up
             </Link>
           </View>
-          <TouchableOpacity onPress={this.googleLogin}
+          <TouchableOpacity
+            onPress={this.googleLogin}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
