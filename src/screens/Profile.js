@@ -17,6 +17,7 @@ import NavService from '../components/NavService';
 import storage from '@react-native-firebase/storage';
 import ImagePicker from 'react-native-image-crop-picker';
 import reducer from '../redux/reducers/reducer';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 export class Profile extends Component {
   constructor(props) {
@@ -117,7 +118,7 @@ export class Profile extends Component {
           .doc(this.props.user.uid)
           .delete()
           .then(() => {
-          
+          GoogleSignin.signOut()
             if (this.state.isToggle) {
               this.props?.DarkMode( 'white');
             }else{
@@ -133,6 +134,7 @@ export class Profile extends Component {
   };
   logout = () => {
     this.props.Logout();
+    GoogleSignin.signOut()
     NavService.reset(0, [{name: 'AuthStack'}]);
     if (this.state.isToggle) {
       this.props?.DarkMode( 'black');
