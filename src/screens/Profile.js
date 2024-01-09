@@ -117,13 +117,16 @@ export class Profile extends Component {
           .doc(this.props.user.uid)
           .delete()
           .then(() => {
-            this.props.Logout();
+          
             if (this.state.isToggle) {
               this.props?.DarkMode( 'white');
             }else{
               this.props?.DarkMode( 'black');
             }
             NavService.reset(0, [{name: 'AuthStack'}]);
+            setTimeout(() => {
+              this.props.Logout();
+            }, 1000);
           });
       })
       .catch(e => alert(e.message));

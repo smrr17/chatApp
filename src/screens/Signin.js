@@ -52,45 +52,74 @@ class Signin extends Component {
       this.setState({isLoading: false});
     }
   };
-  onGoogleButtonPress = async () => {
-    // Check if your device supports Google Play
-    await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
-    // Get the users ID token
-    const {idToken} = await GoogleSignin.signIn();
+  // onGoogleButtonPress = async () => {
+  //   // Check if your device supports Google Play
+  //   await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
+  //   // Get the users ID token
+  //   const {idToken} = await GoogleSignin.signIn();
 
-    // Create a Google credential with the token
+  //   // Create a Google credential with the token
 
-    const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+  //   const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
-    // Sign-in the user with the credential
-    return auth().signInWithCredential(googleCredential);
-  };
+  //   // Sign-in the user with the credential
+  //   return auth().signInWithCredential(googleCredential);
+  // };
 
   googleLogin = async () => {
     try {
       await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
 
-      const {idToken} = await GoogleSignin.signIn();
-      console.log('user info', idToken);
+      const {idToken, user} = await GoogleSignin.signIn();
 
-      // const googleCredential = auth.GoogleAuthProvider.credential(
-      //   userInfo.idToken,
-      // );
-      // const user = await auth().signInWithCredential(googleCredential);
-      // console.log('user', user);
-      // let userData = await firestore()
-      //   .collection('user')
-      //   .doc(user.user.uid)
-      //   .get();
-      // // console.log('sss', userData.data());
-      // this.props.Login(userData.data());
-      // NavService.reset(0, [{name: 'AppStack'}]);
+
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+
+
+      const user1 = await auth().signInWithCredential(googleCredential);
+      const usersRef = await firestore().collection('user').doc(user1.user.uid).get()
+      console.log('user1', usersRef.exists)
+      if(usersRef.exists){
+        this.props.Login(usersRef.data());
+        NavService.reset(0, [{name: 'AppStack'}]);
+        return
+      }else{
+        let userData = await firestore()
+          .collection('user')
+          .doc(user1.user.uid)
+          .set({
+            username: user1.user.displayName,
+            email: user1.user.email,
+            isFirstTime: true,
+            uid: user1.user.uid,
+            photo: user1.user.photoURL,
+            age: '',
+            gender:"",
+            isFirebaseLogin: true,
+          })
+          this.props.Login({
+            username: user1.user.displayName,
+            email: user1.user.email,
+            isFirstTime: true,
+            uid: user1.user.uid,
+            photo: user1.user.photoURL,
+            age: '',
+            gender:"",
+            isFirebaseLogin: true,
+          });
+          NavService.reset(0, [{name: 'AppStack'}]);
+      }
+
+
     } catch (error) {
       console.log('error', error);
     }
   };
   componentDidMount() {
-    GoogleSignin.configure();
+    GoogleSignin.configure({
+      webClientId:
+        '292879422044-9oug1k3ee7vr7g5raos2qks3utnj9n66.apps.googleusercontent.com',
+    });
   }
 
   render() {

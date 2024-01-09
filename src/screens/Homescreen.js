@@ -285,7 +285,7 @@ class Homescreen extends Component {
             
                     <Text
                       style={{color: 'white', fontSize: 18, fontWeight: '800'}}>
-                      {username[0]}
+                      {this.props?.user?.username[0]}
                     </Text>
               
                 </TouchableOpacity>
