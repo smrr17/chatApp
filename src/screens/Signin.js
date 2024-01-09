@@ -67,6 +67,7 @@ class Signin extends Component {
   // };
 
   googleLogin = async () => {
+    this.setState({isLoading: true});
     try {
       await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
 
@@ -113,8 +114,10 @@ class Signin extends Component {
 
     } catch (error) {
       console.log('error', error);
+    }finally{
+      this.setState({isLoading: false});
     }
-  };
+  }
   componentDidMount() {
     GoogleSignin.configure({
       webClientId:
@@ -257,10 +260,11 @@ class Signin extends Component {
                 height: 40,
                 padding: 10,
               }}>
-              <Image
-                style={{width: 20, height: 20}}
-                source={require('../assets/google.png')}
-              />
+                <Image
+                  style={{width: 20, height: 20}}
+                  source={require('../assets/google.png')}
+                />
+               
             </View>
             <View
               style={{
@@ -269,8 +273,20 @@ class Signin extends Component {
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: 10,
+                width:150
+                
               }}>
-              <Text style={{color: 'white'}}>Sign in with Google</Text>
+                 {
+                  this.state.isLoading ? (
+                    <ActivityIndicator color={'white'} />
+                  ) : (
+                  
+                   
+                   
+                    <Text style={{color: 'white'}}>Sign in with Google</Text>
+                   
+                  )
+                }
             </View>
           </TouchableOpacity>
         </View>

@@ -19,6 +19,7 @@ import ImagePicker from 'react-native-image-crop-picker';
 import reducer from '../redux/reducers/reducer';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
+
 export class Profile extends Component {
   constructor(props) {
     super(props);
@@ -117,8 +118,8 @@ export class Profile extends Component {
           .collection('user')
           .doc(this.props.user.uid)
           .delete()
-          .then(() => {
-          GoogleSignin.signOut()
+          .then(async() => {
+         await GoogleSignin.signOut()
             if (this.state.isToggle) {
               this.props?.DarkMode( 'white');
             }else{
@@ -132,10 +133,14 @@ export class Profile extends Component {
       })
       .catch(e => alert(e.message));
   };
-  logout = () => {
-    this.props.Logout();
-    GoogleSignin.signOut()
+  logout = async() => {
+    await GoogleSignin.signOut()
     NavService.reset(0, [{name: 'AuthStack'}]);
+    setTimeout(() => {
+      
+      this.props.Logout();
+}, 1000);
+   
     if (this.state.isToggle) {
       this.props?.DarkMode( 'black');
     }else{
