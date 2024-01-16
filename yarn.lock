@@ -6865,6 +6865,11 @@ react-native-codegen@^0.0.13:
     jscodeshift "^0.13.1"
     nullthrows "^1.1.1"
 
+react-native-fbsdk-next@^12.1.2:
+  version "12.1.2"
+  resolved "https://registry.npmjs.org/react-native-fbsdk-next/-/react-native-fbsdk-next-12.1.2.tgz"
+  integrity sha512-N5MgPwFLnLnC73HuvPLoG+KOjYJBnCFKpkbB3A8+AcKh5BrCcGFICtm3q8XXH1FUiQ8l+meQixz1ag1QoTEBig==
+
 react-native-gesture-handler@^2.4.2:
   version "2.4.2"
   resolved "https://registry.npmjs.org/react-native-gesture-handler/-/react-native-gesture-handler-2.4.2.tgz"
@@ -6904,7 +6909,7 @@ react-native-toast-message@^2.1.5:
   resolved "https://registry.npmjs.org/react-native-toast-message/-/react-native-toast-message-2.1.5.tgz"
   integrity sha512-mk3rELtBEhrhWBCN6CTaw0gypgL9ZNauX3xx1LUs4uee9vc0pVsghrKxO57vroUCcNL2hDeZSLJWdQNMCkGeaQ==
 
-react-native@*, "react-native@^0.0.0-0 || 0.60 - 0.68 || 1000.0.0", react-native@^0.68.1, react-native@>=0.40.0, react-native@>=0.59, react-native@>=0.62.2:
+react-native@*, "react-native@^0.0.0-0 || 0.60 - 0.68 || 1000.0.0", react-native@^0.68.1, react-native@>=0.40.0, react-native@>=0.59, react-native@>=0.62.2, react-native@>=0.63.3:
   version "0.68.1"
   resolved "https://registry.npmjs.org/react-native/-/react-native-0.68.1.tgz"
   integrity sha512-5gfvslo5NO2Ece2k/q41eVOK3ca4u1QAOf+qM+auvOiUA4/QR5Yr0WfSGbRpUr2GaFgv7qP11F4+elCravg7uQ==

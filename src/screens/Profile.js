@@ -18,6 +18,7 @@ import storage from '@react-native-firebase/storage';
 import ImagePicker from 'react-native-image-crop-picker';
 import reducer from '../redux/reducers/reducer';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { LoginButton, AccessToken } from 'react-native-fbsdk-next';
 
 
 export class Profile extends Component {

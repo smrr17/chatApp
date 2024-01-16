@@ -18,8 +18,23 @@ import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
+import {GraphRequest, GraphRequestManager, LoginManager, Settings} from 'react-native-fbsdk-next';
+import {LoginButton, AccessToken, Profile,ProfileMap} from 'react-native-fbsdk-next';
 
 //import {auth} from '../screens/Firebase';
+const infoRequest = new GraphRequest(
+  '/me', 
+  {
+    parameters: {
+      'fields': {
+          'string' : 'email,name,picture,first_name,middle_name,last_name'
+      }
+    }
+  },
+  (err, res) => {
+    console.log(err, res);
+  }
+);
 
 class Signin extends Component {
   state = {
@@ -29,6 +44,23 @@ class Signin extends Component {
     hasFocus1: false,
     isLoading: false,
   };
+
+ facebookLogin = () => {
+    LoginManager.logInWithPermissions(["public_profile", "email"]).then(
+      function(result) {
+        if (result.isCancelled) {
+          console.log("Login cancelled");
+        }
+        else {
+          console.log("Login success with permissions: " + result.grantedPermissions.toString());
+          new GraphRequestManager().addRequest(infoRequest).start();
+        }
+      },
+      function(error) {
+        console.log("Login fail with error: " + error);
+      }
+    );
+}
 
   signIn = async () => {
     const {email, password} = this.state;
@@ -73,18 +105,19 @@ class Signin extends Component {
 
       const {idToken, user} = await GoogleSignin.signIn();
 
-
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
 
-
       const user1 = await auth().signInWithCredential(googleCredential);
-      const usersRef = await firestore().collection('user').doc(user1.user.uid).get()
-      console.log('user1', usersRef.exists)
-      if(usersRef.exists){
+      const usersRef = await firestore()
+        .collection('user')
+        .doc(user1.user.uid)
+        .get();
+      console.log('user1', usersRef.exists);
+      if (usersRef.exists) {
         this.props.Login(usersRef.data());
         NavService.reset(0, [{name: 'AppStack'}]);
-        return
-      }else{
+        return;
+      } else {
         let userData = await firestore()
           .collection('user')
           .doc(user1.user.uid)
@@ -95,34 +128,67 @@ class Signin extends Component {
             uid: user1.user.uid,
             photo: user1.user.photoURL,
             age: '',
-            gender:"",
-            isFirebaseLogin: true,
-          })
-          this.props.Login({
-            username: user1.user.displayName,
-            email: user1.user.email,
-            isFirstTime: true,
-            uid: user1.user.uid,
-            photo: user1.user.photoURL,
-            age: '',
-            gender:"",
+            gender: '',
             isFirebaseLogin: true,
           });
-          NavService.reset(0, [{name: 'AppStack'}]);
+        this.props.Login({
+          username: user1.user.displayName,
+          email: user1.user.email,
+          isFirstTime: true,
+          uid: user1.user.uid,
+          photo: user1.user.photoURL,
+          age: '',
+          gender: '',
+          isFirebaseLogin: true,
+        });
+        NavService.reset(0, [{name: 'AppStack'}]);
       }
-
-
     } catch (error) {
       console.log('error', error);
-    }finally{
+    } finally {
       this.setState({isLoading: false});
     }
-  }
-  componentDidMount() {
+  };
+   componentDidMount() {
     GoogleSignin.configure({
       webClientId:
         '292879422044-9oug1k3ee7vr7g5raos2qks3utnj9n66.apps.googleusercontent.com',
     });
+
+    Settings.setAppID('762140739291156');
+    Settings.initializeSDK();
+  }
+  initUser(token) {
+    fetch(
+      'https://graph.facebook.com/v2.5/me?fields=email,name,friends&access_token=' +
+        token,
+    )
+      .then(response => response.json())
+      .then(json => {
+        console.log('json', json);
+        const user = {};
+        // Some user object has been set up somewhere, build that user here
+        user.name = json.name;
+        user.id = json.id;
+        user.user_friends = json.friends;
+        user.email = json.email;
+        user.username = json.name;
+        user.loading = false;
+        user.loggedIn = true;
+        Profile.getCurrentProfile().then(
+         (data)=>{
+          console.log("data----",data?.imageURL,)
+          user.avatar = data?.imageURL
+          console.log('user', user);
+         }
+        );
+      
+      })
+      .catch(() => {
+        // reject('ERROR GETTING DATA FROM FACEBOOK');
+      });
+
+      
   }
 
   render() {
@@ -260,11 +326,10 @@ class Signin extends Component {
                 height: 40,
                 padding: 10,
               }}>
-                <Image
-                  style={{width: 20, height: 20}}
-                  source={require('../assets/google.png')}
-                />
-               
+              <Image
+                style={{width: 20, height: 20}}
+                source={require('../assets/google.png')}
+              />
             </View>
             <View
               style={{
@@ -273,22 +338,41 @@ class Signin extends Component {
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: 10,
-                width:150
-                
+                width: 150,
               }}>
-                 {
-                  this.state.isLoading ? (
-                    <ActivityIndicator color={'white'} />
-                  ) : (
-                  
-                   
-                   
-                    <Text style={{color: 'white'}}>Sign in with Google</Text>
-                   
-                  )
-                }
+              {this.state.isLoading ? (
+                <ActivityIndicator color={'white'} />
+              ) : (
+                <Text style={{color: 'white'}}>Sign in with Google</Text>
+              )}
             </View>
           </TouchableOpacity>
+          <View
+            style={{
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginTop: 20,
+            }}>
+            <LoginButton
+              style={{width: 190, height: 40}}
+              permissions={['public_profile','email']}
+              onLoginFinished={(error, result) => {
+                if (error) {
+                  console.log('login has error: ' + result.error);
+                } else if (result.isCancelled) {
+                  console.log('login is cancelled.');
+                } else {
+                  AccessToken.getCurrentAccessToken().then(data => {
+                    this.initUser(data.accessToken.toString());
+                    // console.log("data",data)
+                    // console.log(data.accessToken.toString())
+                  });
+                }
+              }}
+              onLogoutFinished={() => console.log('logout.')}
+            />
+          </View>
+          {/* <Text onPress={this.facebookLogin}>skjjsjsnxs</Text> */}
         </View>
       </View>
     );

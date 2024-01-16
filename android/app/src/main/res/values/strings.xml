@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">chatApp</string>
+    <string name="facebook_app_id">762140739291156</string>
+<string name="facebook_client_token">EAAK1KbgIyBQBOzeb5E3VZBY0v7MYsTtOilxp4Y6GPXaaXWdVTrIUfv9yZCCRYZBa50cOLODq33y9kLytosK4IfuMHzmEK1wsiFTQTMNpzSYkkRpAF6Otmjy9b55NZB66VCin56ZAbse6jZApzYoBdDQeVeCiz3Qji9CdMqOalkKZBss5er1hyqZCSrGC5OVm2J0yVLZCQKb8daJxbfHpsyx9dZAfmfRwE3CwCPD4MM5ZBzZC3XvKVpjNDNIbQrrBXvrurNhx3g4DcasZD</string>
 </resources>
