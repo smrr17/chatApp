@@ -347,7 +347,7 @@ class Signin extends Component {
               )}
             </View>
           </TouchableOpacity>
-          <View
+          {/* <View
             style={{
               alignItems: 'center',
               justifyContent: 'center',
@@ -372,7 +372,7 @@ class Signin extends Component {
               onLogoutFinished={() => console.log('logout.')}
             />
           </View>
-          {/* <Text onPress={this.facebookLogin}>skjjsjsnxs</Text> */}
+         */}
         </View>
       </View>
     );
